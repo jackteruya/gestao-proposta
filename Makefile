@@ -15,3 +15,7 @@ sec:
 
 create_super:
 	python manage.py create_superadmin
+
+docker:
+    docker compose build
+    docker compose up -b
