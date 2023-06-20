@@ -1,0 +1,57 @@
+# RabbitMQ properties
+services:
+  rabbitmq:
+    image: rabbitmq:3.8-management-alpine
+    container_name: rabbitmq
+
+    ports:
+      - 5672:5672 # (erlang) communication between the nodes and CLI tool
+      - 15672:15672 # communication with the web management API
+
+    volumes:
+      # data persistence
+      - /docker_conf/rabbitmq/data/:/car/lib/rabbitmq/
+      # data mapping -> host: container
+      # queues and messages data of hte container will be stored on the host
+
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=pass123
+
+    restart: always
+  api:
+    image: emprestimo
+    build:
+      context: .
+    command: sh -c "python manage.py makemigrations &&
+      python manage.py migrate &&
+      python manage.py create_superadmin &&
+      gunicorn gestao_emprestimo.wsgi:application --bind 0.0.0.0:8000"
+    ports:
+      - 8000:8000
+    links:
+      - "database:database"
+
+  celery_worker:
+    build:
+      context: .
+    image: django_celery_worker
+    command: celery -A gestao_emprestimo worker
+    volumes:
+      - .:/app
+
+  database:
+    image: postgres:12-alpine
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: admin
+    ports:
+      - 5433:5432
+    volumes:
+      - database:/var/lib/postgresql/data
+
+volumes:
+  logs-folder:
+    name: ${log_rabbitmq_management}
+    driver: local
+  database:

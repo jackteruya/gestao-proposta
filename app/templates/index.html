@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+    <form>
+        <div>
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" aria-label="Nome">
+        </div>
+        <div>
+            <label for="cpf">CPF</label>
+            <input type="text" maxlength="11" id="cpf" name="cpf" aria-label="CPF">
+        </div>
+        <div>
+            <label for="endereco">Endereço</label>
+            <input type="text" id="endereco" name="endereco" aria-label="Endereço">
+        </div>
+        <div>
+            <label for="valor">Valor</label>
+            <input type="tel" id="valor" name="valor" aria-label="Valor">
+        </div>
+        <button type="submit" onclick="sendProposta()">Enviar</button>
+    </form>
+</body>
+<script>
+function sendProposta(){
+    event.preventDefault();
+    const headers = {
+        "Content-Type": "application/json",
+    };
+    const data = {
+                    nome: document.getElementById('nome').value,
+                    cpf: document.getElementById('cpf').value,
+                    endereco: document.getElementById('endereco').value,
+                    valor: document.getElementById('valor').value
+                };
+    console.log(data)
+    const response = fetch('http://127.0.0.1:8000/proposta/',
+        {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(data),
+        }
+    );
+}
+</script>
+</html>
